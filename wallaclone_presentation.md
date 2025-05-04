@@ -1,175 +1,82 @@
-# Presentación del Proyecto Wallaclone
+# Presentación del proyecto Wallaclone
 
-![Wallaclone Logo](https://via.placeholder.com/150)
+**Wallaclone** es una plataforma web diseñada para facilitar la compra y venta de artículos de segunda mano entre particulares, inspirada en aplicaciones como Wallapop. El sistema ofrece una experiencia completa tanto para usuarios anónimos como para miembros registrados, permitiendo la gestión de anuncios, favoritos, perfiles y comunicación directa a través de un sistema de chat en tiempo real. Actualmente, todas las funcionalidades están implementadas salvo el sistema de notificaciones, que está en desarrollo.
 
-## 📱 Descripción General
+## 🧩 Patrones y arquitectura de diseño
 
-**Wallaclone** es una plataforma web de compra-venta de artículos de segunda mano entre particulares, inspirada en aplicaciones como Wallapop. El sistema ofrece una experiencia completa que incluye:
+El proyecto está basado principalmente en el **patrón de arquitectura MVC (Modelo-Vista-Controlador)**:
+* **Modelo**: Define las estructuras de datos en MongoDB (por ejemplo, `Advert`, `User`, `Chat`, `Message`).
+* **Controlador**: Contiene la lógica de negocio, validación, y manipulación de datos. Divide claramente responsabilidades entre cada tipo de entidad.
+* **Vista**: En el frontend, las vistas están desarrolladas con **React**, donde cada página o componente representa una parte visual del sistema.
 
-- Navegación de anuncios para usuarios anónimos
-- Sistema completo de registro y autenticación
-- Gestión de anuncios (creación, edición, eliminación)
-- Sistema de favoritos
-- Perfiles de usuario personalizables
-- Sistema de chat en tiempo real entre compradores y vendedores
-- *(En desarrollo)* Sistema de notificaciones
+Además, se ha aplicado una **separación de responsabilidades clara y modular** que recuerda a principios de la **Clean Architecture**:
+* **Frontend**: Dividido por funcionalidades (auth, chat, adverts, user) y con servicios centralizados para las llamadas API (`chat-service.js`, `auth-service.js`, etc.).
+* **Backend**: Rutas agrupadas, middlewares especializados, controladores por dominio y lógica desacoplada.
 
-## 🧩 Arquitectura y Patrones de Diseño
+Se ha respetado el enfoque **full-stack feature-driven**, en el que una misma persona desarrolla una funcionalidad de extremo a extremo (del backend al frontend).
 
-### MVC (Modelo-Vista-Controlador)
-El proyecto está estructurado siguiendo el patrón MVC:
+## 👥 Organización del equipo
 
-- **Modelo**: Esquemas de MongoDB (Advert, User, Chat, Message)
-- **Controlador**: Lógica de negocio, validación y manipulación de datos
-- **Vista**: Componentes React que muestran la interfaz al usuario
+Somos un equipo de **4 personas** que ha trabajado en igualdad de condiciones: **todos hemos actuado como líderes técnicos y managers** en diferentes momentos. Cada integrante ha asumido la responsabilidad de definir, desarrollar y documentar funcionalidades completas, desde la base de datos hasta la interfaz de usuario.
 
-### Clean Architecture
-Se ha implementado una separación clara de responsabilidades:
+## 🗂️ Gestión y seguimiento del trabajo
 
-#### Frontend (React + Vite)
-- Organización por funcionalidades:
-  - `/auth`: Componentes de registro, login y recuperación
-  - `/adverts`: Listado, detalle y gestión de anuncios
-  - `/user`: Perfil de usuario y preferencias
-  - `/chat`: Sistema de mensajería en tiempo real
-- Servicios API centralizados:
-  - `auth-service.js`
-  - `adverts-service.js`
-  - `chat-service.js`
-  - `user-service.js`
+* Usamos **Kanban Flow** como sistema dinámico para organizar el estado de las tareas principales.
+* Llevamos un **Excel compartido y en constante actualización**, donde registramos:
+   * Tareas realizadas
+   * Bugs detectados
+   * Observaciones de UX/UI
+   * Estado actual (por hacer, en progreso, en revisión, terminado)
+   * Fecha de creación, responsables y prioridad
 
-#### Backend (Node.js + Express)
-- API RESTful con recursos claramente definidos
-- Middlewares especializados (autenticación, validación, manejo de errores)
-- Controladores específicos por dominio
-- Servicios de lógica de negocio desacoplados
-- Gestión de base de datos MongoDB
+## 💬 Comunicación y documentación interna
 
-### Enfoque Full-Stack Feature-Driven
-Cada desarrollador ha sido responsable de funcionalidades completas:
-- Diseño del modelo de datos
-- Implementación de la API backend
-- Desarrollo de componentes frontend
-- Pruebas de integración
+Toda la comunicación y documentación del proyecto está organizada en un **servidor de Discord estructurado por canales**, separados por áreas clave:
+* **Backend**
+   * Avances por feature
+   * Errores comunes y soluciones
+   * Librerías utilizadas y decisiones técnicas
+   * Enlaces a documentación técnica
+* **Frontend**
+   * Prototipos y diseño UI
+   * Implementación de componentes
+   * Estados y props compartidos
+   * Feedback visual y bugs de interfaz
+* **Deploy**
+   * Comandos, scripts y entornos
+   * Registro de pruebas en producción
+   * Hosting, dominios, DNS y SSL
+* **Git**
+   * Flujo de ramas: `main` > `develop` > `feature/*`
+   * Resolución de conflictos
+   * Buenas prácticas de commits
+   * Registro de merges y revisiones
 
-## 👥 Organización del Equipo
+También incluimos:
+* **Diarios de seguimiento** individuales y por equipo.
+* **Actas de reuniones internas**, decisiones tomadas y próximas tareas.
+* **Canal de avisos urgentes** para bloqueos o incidencias críticas.
 
-Equipo de **4 desarrolladores** con roles dinámicos:
-- Liderazgo técnico rotativo
-- Responsabilidades compartidas y equitativas
-- Toma de decisiones consensuada
-- Revisión de código entre pares
+## Despliegue en producción (AWS + Nginx + Certbot)
 
-## 🗂️ Gestión y Seguimiento del Trabajo
+El proyecto **Wallaclone** está desplegado en **AWS EC2**, utilizando **dos instancias separadas** para frontend y backend:
+* 🔧 **Backend** (Node.js + Express): Corre localmente en la instancia, sin exponer puertos públicos. Está protegido por **CORS**, aceptando peticiones únicamente desde:
+* `const allowedOrigins = [ 'https://bananapeels.duckdns.org', 'http://localhost:5173', ];`
+* Se configuró NGINX como proxy inverso con rutas `/api/` y `/socket.io/` apuntando al backend en el puerto 4444, permitiendo tráfico HTTP y WebSockets. El tráfico está asegurado con HTTPS mediante Certbot y se redirige todo HTTP a HTTPS automáticamente.
 
-### Metodología
-- **Kanban Flow** para visualización de tareas
-- Sprints semanales con reuniones de revisión
-- Flujo de trabajo ágil adaptado a las necesidades del equipo
+Todas las peticiones externas son gestionadas a través de **Nginx como proxy inverso**.
+* 🖥️ **Frontend** (React + Vite): Compilado y servido como sitio estático desde Nginx.
 
-### Herramientas
-- **Excel compartido** como registro central con:
-  - Tareas y subtareas
-  - Estado actual (por hacer, en progreso, en revisión, terminado)
-  - Responsables y fechas
-  - Prioridades y dependencias
-  - Registro de bugs y mejoras
+Se ha asignado una **Elastic IP** fija a la instancia y configurado un dominio dinámico con **DuckDNS**: 🔗 `https://bananapeels.duckdns.org/`
 
-## 💬 Comunicación y Documentación
+## 🔐 HTTPS con Certbot
 
-### Servidor Discord Estructurado
-- **Backend**:
-  - Avances por funcionalidad
-  - Documentación técnica
-  - Soluciones a problemas comunes
-- **Frontend**:
-  - Prototipos UI/UX
-  - Componentes compartidos
-  - Feedback visual
-- **Deploy**:
-  - Procedimientos de despliegue
-  - Configuración de servidores
-  - Pruebas en producción
-- **Git**:
-  - Flujo de ramas (`main` > `develop` > `feature/*`)
-  - Resolución de conflictos
-  - Buenas prácticas
+Ambas instancias están protegidas con **certificados SSL gratuitos de Let's Encrypt** mediante **Certbot**. Nginx está configurado para redirigir automáticamente todas las peticiones HTTP a HTTPS.
 
-### Documentación Interna
-- Diarios de seguimiento
-- Actas de reuniones
-- Decisiones técnicas
-- Canal de avisos urgentes
+## 🔄 Actualización del código
 
-## 🚀 Despliegue en Producción
-
-### Infraestructura AWS
-- **2 instancias EC2** separadas:
-  - Backend (Node.js + Express)
-  - Frontend (React + Vite)
-- **Elastic IP** asignada
-- Dominio configurado con **DuckDNS**: [bananapeels.duckdns.org](https://bananapeels.duckdns.org/)
-
-### Configuración de Seguridad
-- **CORS** configurado para orígenes permitidos:
-  ```javascript
-  const allowedOrigins = [
-    'https://bananapeels.duckdns.org',
-    'http://localhost:5173',
-  ];
-  ```
-- **HTTPS** mediante certificados Let's Encrypt (Certbot)
-- Redirección automática HTTP → HTTPS
-
-### Servidor Nginx
-- Configurado como **proxy inverso**
-- Rutas `/api/` y `/socket.io/` redirigidas al backend
-- Soporte para WebSockets
-- Frontend servido como archivos estáticos
-
-### Proceso de Actualización
-Script automatizado `update.sh`:
-1. Pull desde repositorio Git
-2. Instalación de dependencias
-3. Reinicio del backend (Supervisor)
-4. Reconstrucción del frontend
-5. Recarga de configuración Nginx
-
-## 💻 Tecnologías Utilizadas
-
-### Frontend
-- React
-- Redux para gestión del estado
-- React Router
-- Socket.io (cliente)
-- Vite como bundler
-
-### Backend
-- Node.js
-- Express
-- MongoDB
-- Mongoose
-- Socket.io (servidor)
-- JWT para autenticación
-
-### DevOps
-- Git/GitHub
-- AWS EC2
-- Nginx
-- Certbot (Let's Encrypt)
-- Supervisor
-
-## 🔮 Próximas Mejoras
-
-- Sistema de notificaciones en tiempo real
-- Búsqueda avanzada con filtros
-- Optimización de rendimiento
-- Integración de pasarela de pagos
-- Aplicación móvil nativa
-
-## 📊 Métricas y Resultados
-
-- Tiempo de respuesta API < 300ms
-- Tiempo de carga inicial < 2s
-- Cobertura de pruebas > 80%
-- Disponibilidad del servicio > 99.5%
+Cada instancia incluye un **script interno (**`update.sh`) que automatiza:
+* Pull del repositorio (`git pull`)
+* Instalación de dependencias (`npm install`)
+* Reinicio del backend con **Supervisor** o build del frontend
+* Recarga de Nginx si es necesario
